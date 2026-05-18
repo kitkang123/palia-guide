@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>帕利亚攻略站 · Palia Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sage: #7a9e87;
+    --sage-light: #b8d4c0;
+    --sage-dark: #3d5c47;
+    --cream: #faf7f0;
+    --warm: #f0ebe0;
+    --stone: #c8bfaa;
+    --amber: #d4a84b;
+    --amber-light: #f0d090;
+    --text: #2c2416;
+    --text-muted: #6b5f4e;
+    --gold: #c8963c;
+    --sky: #6ba8c4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream);
+    color: var(--text);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  /* ---- NAV ---- */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250,247,240,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--stone);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    height: 56px;
+    gap: 2rem;
+  }
+  .nav-logo {
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--sage-dark);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .nav-logo span {
+    color: var(--gold);
+  }
+  .nav-links {
+    display: flex;
+    gap: 0.2rem;
+    list-style: none;
+    flex: 1;
+  }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    font-weight: 400;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    transition: all 0.2s;
+  }
+  .nav-links a:hover, .nav-links a.active {
+    background: var(--sage-dark);
+    color: var(--cream);
+  }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .nav-search-small {
+    display: flex;
+    align-items: center;
+    background: var(--warm);
+    border: 1px solid var(--stone);
+    border-radius: 20px;
+    padding: 0.3rem 1rem;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    cursor: text;
+  }
+  .nav-search-small svg { opacity: 0.6; }
+  .btn-update {
+    background: var(--sage-dark);
+    color: var(--cream);
+    border: none;
+    border-radius: 20px;
+    padding: 0.3rem 1rem;
+    font-size: 0.82rem;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  /* ---- HERO ---- */
+  .hero {
+    position: relative;
+    background: linear-gradient(160deg, #2d4a36 0%, #1e3328 40%, #0e2218 100%);
+    padding: 5rem 2rem 4rem;
+    overflow: hidden;
+    text-align: center;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse 60% 40% at 70% 50%, rgba(122,158,135,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(100,180,130,0.10) 0%, transparent 60%);
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(212,168,75,0.2);
+    border: 1px solid rgba(212,168,75,0.5);
+    color: var(--amber-light);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    padding: 0.25rem 1rem;
+    border-radius: 20px;
+    margin-bottom: 1.5rem;
+    font-weight: 400;
+  }
+  .hero h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    color: #e8f0e2;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.75rem;
+    position: relative;
+  }
+  .hero h1 .gold { color: var(--amber-light); }
+  .hero-sub {
+    color: rgba(200,220,210,0.7);
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+  .search-box {
+    position: relative;
+    max-width: 560px;
+    margin: 0 auto 2rem;
+  }
+  .search-box input {
+    width: 100%;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(200,220,210,0.3);
+    border-radius: 40px;
+    padding: 1rem 1.5rem 1rem 3rem;
+    font-size: 1rem;
+    color: #e8f0e2;
+    font-family: 'Noto Sans SC', sans-serif;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .search-box input::placeholder { color: rgba(200,220,210,0.5); }
+  .search-box input:focus {
+    border-color: rgba(200,220,210,0.7);
+    background: rgba(255,255,255,0.15);
+  }
+  .search-icon {
+    position: absolute;
+    left: 1.1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.5;
+    color: #e8f0e2;
+  }
+  .search-btn {
+    position: absolute;
+    right: 0.4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--sage);
+    border: none;
+    border-radius: 30px;
+    color: white;
+    padding: 0.55rem 1.25rem;
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .search-btn:hover { background: var(--sage-dark); }
+  .hot-tags {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+  }
+  .hot-tags span {
+    font-size: 0.78rem;
+    color: rgba(200,220,210,0.55);
+  }
+  .hot-tag {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(200,220,210,0.2);
+    color: rgba(200,220,210,0.8);
+    border-radius: 20px;
+    padding: 0.25rem 0.85rem;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .hot-tag:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(200,220,210,0.5);
+    color: #e8f0e2;
+  }
+
+  /* ---- MAIN ---- */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+  }
+
+  section { margin-bottom: 3.5rem; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--stone);
+    padding-bottom: 0.75rem;
+  }
+  .section-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--sage-dark);
+  }
+  .section-subtitle {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+  .section-more {
+    margin-left: auto;
+    font-size: 0.82rem;
+    color: var(--sage);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .section-more:hover { color: var(--sage-dark); }
+
+  /* ---- SKILL CARDS ---- */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+  .skill-card {
+    background: white;
+    border: 1px solid var(--stone);
+    border-radius: 12px;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.22s;
+    text-decoration: none;
+    display: block;
+  }
+  .skill-card:hover {
+    border-color: var(--sage);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(61,92,71,0.12);
+  }
+  .skill-icon {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  .skill-name {
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--text);
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+  .skill-en {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+  }
+  .skill-card.featured {
+    border-color: var(--sage-light);
+    background: linear-gradient(135deg, #f4fbf6, white);
+  }
+
+  /* ---- GUIDE LIST ---- */
+  .guide-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  @media (max-width: 640px) { .guide-columns { grid-template-columns: 1fr; } }
+
+  .guide-block { }
+  .guide-block-title {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .guide-list { list-style: none; }
+  .guide-list li {
+    border-bottom: 1px solid var(--warm);
+  }
+  .guide-list li:last-child { border-bottom: none; }
+  .guide-list a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.9rem;
+    transition: color 0.2s;
+  }
+  .guide-list a:hover { color: var(--sage-dark); }
+  .guide-list a::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--sage-light);
+    flex-shrink: 0;
+  }
+  .guide-tag {
+    margin-left: auto;
+    font-size: 0.72rem;
+    background: var(--warm);
+    color: var(--text-muted);
+    padding: 0.1rem 0.55rem;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .guide-tag.new {
+    background: rgba(122,158,135,0.15);
+    color: var(--sage-dark);
+  }
+  .guide-tag.hot {
+    background: rgba(212,168,75,0.15);
+    color: #8a6020;
+  }
+
+  /* ---- UPDATE CARDS ---- */
+  .update-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.25rem;
+  }
+  @media (max-width: 700px) { .update-grid { grid-template-columns: 1fr; } }
+
+  .update-card {
+    background: white;
+    border: 1px solid var(--stone);
+    border-radius: 12px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .update-card.featured::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--sage), var(--amber));
+  }
+  .update-version {
+    display: inline-block;
+    font-size: 0.75rem;
+    background: var(--sage-dark);
+    color: var(--cream);
+    padding: 0.15rem 0.65rem;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+  }
+  .update-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+  .update-desc {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 1rem;
+  }
+  .update-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .update-tag {
+    font-size: 0.76rem;
+    padding: 0.15rem 0.65rem;
+    border-radius: 20px;
+    background: var(--warm);
+    color: var(--text-muted);
+    border: 1px solid var(--stone);
+  }
+  .changelog {
+    list-style: none;
+  }
+  .changelog li {
+    font-size: 0.86rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--warm);
+    color: var(--text-muted);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+  .changelog li:last-child { border: none; }
+  .changelog li .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--sage-light);
+    margin-top: 0.55rem;
+    flex-shrink: 0;
+  }
+  .changelog-date {
+    font-size: 0.75rem;
+    color: var(--stone);
+    margin-bottom: 0.75rem;
+  }
+
+  /* ---- NPC STRIP ---- */
+  .npc-strip {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--stone) transparent;
+  }
+  .npc-card {
+    background: white;
+    border: 1px solid var(--stone);
+    border-radius: 12px;
+    padding: 1rem;
+    min-width: 140px;
+    text-align: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: block;
+  }
+  .npc-card:hover {
+    border-color: var(--sage);
+    transform: translateY(-2px);
+  }
+  .npc-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    margin: 0 auto 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    background: var(--warm);
+  }
+  .npc-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.2rem;
+    color: var(--text);
+  }
+  .npc-role {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  .npc-hearts {
+    font-size: 0.72rem;
+    color: #d46b6b;
+    margin-top: 0.25rem;
+  }
+
+  /* ---- MAP SECTION ---- */
+  .map-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  .map-card {
+    border-radius: 12px;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+    text-decoration: none;
+    display: block;
+  }
+  .map-card:hover { transform: translateY(-3px); }
+  .map-card.kilima { background: linear-gradient(135deg, #d4eadc, #e8f5ec); border: 1px solid #a8d4b4; }
+  .map-card.bahari  { background: linear-gradient(135deg, #c8dff0, #dceef8); border: 1px solid #8ec0de; }
+  .map-card.elderwood { background: linear-gradient(135deg, #d4ccf0, #e8e4fa); border: 1px solid #a898d8; }
+  .map-card.highlands { background: linear-gradient(135deg, #f0e0cc, #faf0e4); border: 1px solid #d8b890; }
+  .map-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .map-name {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  .map-card.kilima .map-name { color: #2a5a3a; }
+  .map-card.bahari .map-name { color: #1a4a6a; }
+  .map-card.elderwood .map-name { color: #3a2a6a; }
+  .map-card.highlands .map-name { color: #6a3a1a; }
+  .map-desc { font-size: 0.8rem; color: var(--text-muted); }
+  .map-new-badge {
+    display: inline-block;
+    background: var(--amber);
+    color: white;
+    font-size: 0.68rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 10px;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+  }
+
+  /* ---- FOOTER ---- */
+  footer {
+    background: #1a2a1e;
+    color: rgba(200,220,210,0.6);
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.82rem;
+    margin-top: 2rem;
+  }
+  footer a { color: var(--sage-light); text-decoration: none; }
+
+  /* ---- ANNOUNCE BANNER ---- */
+  .announce {
+    background: linear-gradient(90deg, var(--sage-dark), #2a4a38);
+    color: rgba(200,230,215,0.9);
+    text-align: center;
+    padding: 0.5rem 2rem;
+    font-size: 0.83rem;
+  }
+  .announce a { color: var(--amber-light); text-decoration: none; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- ANNOUNCE -->
+<div class="announce">
+  🌿 最新更新：<strong>Royal Highlands 扩展包</strong>已上线（2026年5月12日）—— <a href="#">查看全部新内容 →</a>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">Palia<span>·</span>攻略站</a>
+  <ul class="nav-links">
+    <li><a href="#" class="active">首页</a></li>
+    <li><a href="#">技能</a></li>
+    <li><a href="#">物品库</a></li>
+    <li><a href="#">任务</a></li>
+    <li><a href="#">村民</a></li>
+    <li><a href="#">地图</a></li>
+    <li><a href="#">更新</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="nav-search-small">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      搜索…
+    </div>
+    <button class="btn-update">版本 0.202</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">✦ 已突破 1000 万玩家 · 免费游戏 ✦</div>
+  <h1>帕利亚 · <span class="gold">全攻略</span></h1>
+  <p class="hero-sub">钓鱼 · 采矿 · 烹饪 · 建造 · 村民攻略 · 资源地图</p>
+  <div class="search-box">
+    <svg class="search-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" placeholder="搜索物品、任务、村民……例如：钓鱼升级">
+    <button class="search-btn">搜索</button>
+  </div>
+  <div class="hot-tags">
+    <span>热门：</span>
+    <a class="hot-tag" href="#">钓鱼攻略</a>
+    <a class="hot-tag" href="#">村民礼物</a>
+    <a class="hot-tag" href="#">昆虫图鉴</a>
+    <a class="hot-tag" href="#">快速升级</a>
+    <a class="hot-tag" href="#">皇家高地</a>
+    <a class="hot-tag" href="#">Elderwood</a>
+    <a class="hot-tag" href="#">烹饪食谱</a>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <!-- 技能 -->
+  <section>
+    <div class="section-header">
+      <span class="section-title">🌿 技能攻略</span>
+      <span class="section-subtitle">10 种核心技能全覆盖</span>
+      <a class="section-more" href="#">查看全部 →</a>
+    </div>
+    <div class="skills-grid">
+      <a class="skill-card featured" href="#">
+        <span class="skill-icon">🎣</span>
+        <span class="skill-name">钓鱼</span>
+        <span class="skill-en">Fishing</span>
+      </a>
+      <a class="skill-card featured" href="#">
+        <span class="skill-icon">⛏️</span>
+        <span class="skill-name">采矿</span>
+        <span class="skill-en">Mining</span>
+      </a>
+      <a class="skill-card" href="#">
+        <span class="skill-icon">🍳</span>
+        <span class="skill-name">烹饪</span>
+        <span class="skill-en">Cooking</span>
+      </a>
+      <a class="skill-card" href="#">
+        <span class="skill-icon">🌱</span>
+        <span class="skill-name">耕种</span>
+        <span class="skill-en">Gardening</span>
+      </a>
+      <a class="skill-card" href="#">
+        <span class="skill-icon">🐄</span>
+        <span class="skill-name">牧场</span>
+        <span class="skill-en">Ranching</span>
+      </a>
+      <a class="skill-card" href="#">
+        <span class="skill-icon">🦋</span>
+        <span class="skill-name">捕虫</span>
+        <span class="skill-en">Insect Catching</span>
+      </a>
+      <a class="skill-card" href="#">
+        <span class="skill-icon">🏹</span>
+        <span class="skill-name">狩猎</span>
+        <span class="skill-en">Hunting</span>
+      </a>
+      <a class="skill-card" href="#">
+        <span class="skill-icon">🌿</span>
+        <span class="skill-name">采集</span>
+        <span class="skill-en">Foraging</span>
+      </a>
+      <a class="skill-card" href="#">
+        <span class="skill-icon">🪑</span>
+        <span class="skill-name">家具制作</span>
+        <span class="skill-en">Furniture Making</span>
+      </a>
+      <a class="skill-card" href="#">
+        <span class="skill-icon">🔧</span>
+        <span class="skill-name">工程</span>
+        <span class="skill-en">Engineering</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- 地图 -->
+  <section>
+    <div class="section-header">
+      <span class="section-title">🗺️ 区域地图</span>
+      <span class="section-subtitle">资源分布 · 快速传送 · 宝箱位置</span>
+      <a class="section-more" href="#">查看地图 →</a>
+    </div>
+    <div class="map-grid">
+      <a class="map-card kilima" href="#">
+        <div class="map-icon">🌄</div>
+        <div class="map-name">奇利马谷 Kilima Valley</div>
+        <div class="map-desc">初始区域，村庄核心，适合新手采集</div>
+      </a>
+      <a class="map-card bahari" href="#">
+        <div class="map-icon">🌊</div>
+        <div class="map-name">巴哈里湾 Bahari Bay</div>
+        <div class="map-desc">高级资源，服务器全域活动，深海钓鱼</div>
+      </a>
+      <a class="map-card elderwood" href="#">
+        <div class="map-icon">🌲</div>
+        <div class="map-name">古林 Elderwood</div>
+        <div class="map-desc">神秘森林，Umbraan 圣地，稀有生物</div>
+      </a>
+      <a class="map-card highlands" href="#">
+        <div class="map-icon">🏰</div>
+        <div class="map-name">皇家高地 Royal Highlands</div>
+        <div class="map-desc">
+          <span class="map-new-badge">2026.5 NEW</span><br>
+          古老宫殿遗迹，全新村民与剧情
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- 攻略列表 + 更新日志 -->
+  <section>
+    <div style="display: grid; grid-template-columns: 1fr 340px; gap: 2rem;">
+
+      <!-- 攻略 -->
+      <div>
+        <div class="section-header">
+          <span class="section-title">📖 热门攻略</span>
+        </div>
+        <div class="guide-columns">
+          <div class="guide-block">
+            <div class="guide-block-title">新手入门</div>
+            <ul class="guide-list">
+              <li><a href="#">帕利亚新手完全指南<span class="guide-tag new">新</span></a></li>
+              <li><a href="#">如何快速赚金币 Top 10</a></li>
+              <li><a href="#">家园建设入门攻略<span class="guide-tag hot">热</span></a></li>
+              <li><a href="#">角色外观捏脸大全</a></li>
+              <li><a href="#">每日任务效率指南</a></li>
+            </ul>
+          </div>
+          <div class="guide-block">
+            <div class="guide-block-title">收集 &amp; 图鉴</div>
+            <ul class="guide-list">
+              <li><a href="#">全部毛绒玩具获取方式<span class="guide-tag hot">热</span></a></li>
+              <li><a href="#">稀有鱼类钓法汇总</a></li>
+              <li><a href="#">所有昆虫捕捉时间表</a></li>
+              <li><a href="#">Elderwood 宝箱全位置<span class="guide-tag new">新</span></a></li>
+              <li><a href="#">皇家高地隐藏宝箱</a></li>
+            </ul>
+          </div>
+          <div class="guide-block">
+            <div class="guide-block-title">村民 &amp; 剧情</div>
+            <ul class="guide-list">
+              <li><a href="#">全村民好感度礼物清单<span class="guide-tag hot">热</span></a></li>
+              <li><a href="#">浪漫线攻略汇总</a></li>
+              <li><a href="#">主线任务全流程</a></li>
+              <li><a href="#">隐藏对话触发条件</a></li>
+            </ul>
+          </div>
+          <div class="guide-block">
+            <div class="guide-block-title">资源 &amp; 合成</div>
+            <ul class="guide-list">
+              <li><a href="#">合成工坊优先级推荐</a></li>
+              <li><a href="#">烹饪食谱效果大全<span class="guide-tag hot">热</span></a></li>
+              <li><a href="#">矿石分布 &amp; 刷新规律</a></li>
+              <li><a href="#">农作物利润排行</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 更新日志 -->
+      <div>
+        <div class="section-header">
+          <span class="section-title">🔔 最新更新</span>
+          <a class="section-more" href="#">更多 →</a>
+        </div>
+        <div class="update-card featured">
+          <div class="update-version">v0.202 · 皇家高地</div>
+          <div class="update-title">Royal Highlands 扩展</div>
+          <div class="update-desc">全新地图区域，阳光照耀的古宫废墟，新村民与独特动植物群落。</div>
+          <div class="update-tags">
+            <span class="update-tag">新区域</span>
+            <span class="update-tag">新村民</span>
+            <span class="update-tag">新剧情</span>
+            <span class="update-tag">马匹出行</span>
+          </div>
+        </div>
+        <br>
+        <div class="update-card">
+          <div class="changelog-date">历史更新</div>
+          <ul class="changelog">
+            <li><span class="dot"></span><span>v0.195 · 古林 Elderwood 上线，15处神龛，新生物</span></li>
+            <li><span class="dot"></span><span>v0.192 · 动态事件系统，免费宠物</span></li>
+            <li><span class="dot"></span><span>v0.188 · PS5 &amp; Xbox 版本上线</span></li>
+            <li><span class="dot"></span><span>v0.181 · 组队奖励分享系统</span></li>
+            <li><span class="dot"></span><span>v0.179 · 好感度 5 级任务解锁</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 村民 -->
+  <section>
+    <div class="section-header">
+      <span class="section-title">💛 村民攻略</span>
+      <span class="section-subtitle">送礼 · 约会 · 友情线</span>
+      <a class="section-more" href="#">查看全部村民 →</a>
+    </div>
+    <div class="npc-strip">
+      <a class="npc-card" href="#">
+        <div class="npc-avatar">🧑‍🌾</div>
+        <div class="npc-name">Jina</div>
+        <div class="npc-role">图书馆员</div>
+        <div class="npc-hearts">♥ ♥ ♥ ♥ ♡</div>
+      </a>
+      <a class="npc-card" href="#">
+        <div class="npc-avatar">🦊</div>
+        <div class="npc-name">Zeki</div>
+        <div class="npc-role">商人</div>
+        <div class="npc-hearts">♥ ♥ ♥ ♡ ♡</div>
+      </a>
+      <a class="npc-card" href="#">
+        <div class="npc-avatar">⚒️</div>
+        <div class="npc-name">Sifuu</div>
+        <div class="npc-role">铁匠</div>
+        <div class="npc-hearts">♥ ♥ ♥ ♥ ♡</div>
+      </a>
+      <a class="npc-card" href="#">
+        <div class="npc-avatar">🌺</div>
+        <div class="npc-name">Kenyatta</div>
+        <div class="npc-role">植物学家</div>
+        <div class="npc-hearts">♥ ♥ ♡ ♡ ♡</div>
+      </a>
+      <a class="npc-card" href="#">
+        <div class="npc-avatar">🎸</div>
+        <div class="npc-name">Reth</div>
+        <div class="npc-role">厨师</div>
+        <div class="npc-hearts">♥ ♥ ♥ ♡ ♡</div>
+      </a>
+      <a class="npc-card" href="#">
+        <div class="npc-avatar">🌙</div>
+        <div class="npc-name">Hassian</div>
+        <div class="npc-role">猎人</div>
+        <div class="npc-hearts">♥ ♥ ♡ ♡ ♡</div>
+      </a>
+      <a class="npc-card" href="#">
+        <div class="npc-avatar">🌸</div>
+        <div class="npc-name">Nai'o</div>
+        <div class="npc-role">农夫</div>
+        <div class="npc-hearts">♥ ♥ ♥ ♥ ♡</div>
+      </a>
+      <a class="npc-card" href="#">
+        <div class="npc-avatar">🔮</div>
+        <div class="npc-name">Tamala</div>
+        <div class="npc-role">魔法学者</div>
+        <div class="npc-hearts">♥ ♥ ♡ ♡ ♡</div>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <p>帕利亚攻略站 · 非官方社区站点 · 内容由玩家整理维护</p>
+  <p style="margin-top: 0.4rem;">Palia™ 版权归 Singularity 6 / Daybreak Game Company 所有 · <a href="#">加入编辑团队</a> · <a href="#">提交错误</a></p>
+</footer>
+
+</body>
+</html>
