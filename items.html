@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>物品数据库 · 帕利亚攻略站</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sage: #7a9e87;
+    --sage-light: #b8d4c0;
+    --sage-dark: #3d5c47;
+    --cream: #faf7f0;
+    --warm: #f0ebe0;
+    --stone: #c8bfaa;
+    --amber: #d4a84b;
+    --amber-light: #f0d090;
+    --text: #2c2416;
+    --text-muted: #6b5f4e;
+    --gold: #c8963c;
+    --white: #ffffff;
+    --border: #e0d8cc;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--cream);
+    color: var(--text);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(250,247,240,0.93);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--stone);
+    padding: 0 2rem;
+    display: flex; align-items: center; height: 56px; gap: 2rem;
+  }
+  .nav-logo {
+    font-family: 'Cinzel', serif; font-weight: 600; font-size: 1.05rem;
+    color: var(--sage-dark); letter-spacing: 0.08em; text-decoration: none; white-space: nowrap;
+  }
+  .nav-logo span { color: var(--gold); }
+  .nav-links { display: flex; gap: 0.2rem; list-style: none; flex: 1; }
+  .nav-links a {
+    text-decoration: none; color: var(--text-muted); font-size: 0.88rem;
+    padding: 0.3rem 0.75rem; border-radius: 20px; transition: all 0.2s;
+  }
+  .nav-links a:hover, .nav-links a.active { background: var(--sage-dark); color: var(--cream); }
+  .nav-breadcrumb {
+    font-size: 0.82rem; color: var(--text-muted);
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .nav-breadcrumb a { color: var(--sage); text-decoration: none; }
+
+  /* PAGE HEADER */
+  .page-header {
+    background: linear-gradient(160deg, #2d4a36 0%, #1e3328 60%, #162b20 100%);
+    padding: 3rem 2rem 2.5rem;
+    position: relative; overflow: hidden;
+  }
+  .page-header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 50% 80% at 80% 50%, rgba(122,158,135,0.15) 0%, transparent 70%);
+  }
+  .page-header-inner { max-width: 1100px; margin: 0 auto; position: relative; }
+  .page-header h1 {
+    font-family: 'Cinzel', serif; font-size: 1.9rem; color: #e8f0e2;
+    font-weight: 600; margin-bottom: 0.4rem;
+  }
+  .page-header p { color: rgba(200,220,210,0.65); font-size: 0.92rem; }
+
+  /* MAIN LAYOUT */
+  .layout {
+    max-width: 1100px; margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  /* SIDEBAR FILTERS */
+  .sidebar { position: sticky; top: 72px; }
+  .filter-section {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .filter-title {
+    font-size: 0.78rem; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.85rem;
+  }
+  .filter-options { display: flex; flex-direction: column; gap: 0.3rem; }
+  .filter-btn {
+    background: none; border: none; cursor: pointer;
+    font-family: 'Noto Sans SC', sans-serif; font-size: 0.87rem;
+    color: var(--text-muted); padding: 0.4rem 0.75rem;
+    border-radius: 8px; text-align: left; transition: all 0.18s;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  .filter-btn:hover { background: var(--warm); color: var(--text); }
+  .filter-btn.active { background: var(--sage-dark); color: var(--cream); }
+  .filter-btn .icon { font-size: 1rem; width: 20px; text-align: center; }
+  .filter-btn .count {
+    margin-left: auto; font-size: 0.72rem;
+    background: rgba(0,0,0,0.08); padding: 0.1rem 0.45rem;
+    border-radius: 10px;
+  }
+  .filter-btn.active .count { background: rgba(255,255,255,0.2); }
+
+  /* RARITY DOTS */
+  .rarity-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+  .r-common { background: #aaa; }
+  .r-uncommon { background: #4a9e5c; }
+  .r-rare { background: #4a7acc; }
+  .r-epic { background: #9a5acc; }
+  .r-legendary { background: #d4a84b; }
+
+  /* SEARCH + TOOLBAR */
+  .toolbar {
+    display: flex; align-items: center; gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .search-wrap {
+    position: relative; flex: 1;
+  }
+  .search-wrap input {
+    width: 100%;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem 1rem 0.6rem 2.4rem;
+    font-size: 0.9rem; font-family: inherit;
+    color: var(--text); outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--sage); }
+  .search-wrap input::placeholder { color: var(--stone); }
+  .search-icon {
+    position: absolute; left: 0.8rem; top: 50%;
+    transform: translateY(-50%); opacity: 0.4; pointer-events: none;
+  }
+  .sort-select {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.6rem 0.9rem;
+    font-family: inherit; font-size: 0.87rem; color: var(--text-muted);
+    cursor: pointer; outline: none;
+  }
+  .result-count {
+    font-size: 0.82rem; color: var(--text-muted); white-space: nowrap;
+  }
+
+  /* ITEM TABLE */
+  .table-wrap {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr {
+    background: var(--warm);
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    padding: 0.75rem 1rem; text-align: left;
+    font-size: 0.78rem; font-weight: 500; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--text-muted);
+    cursor: pointer; user-select: none; white-space: nowrap;
+  }
+  th:hover { color: var(--sage-dark); }
+  th .sort-arrow { opacity: 0.4; margin-left: 4px; }
+  th.sorted .sort-arrow { opacity: 1; color: var(--sage-dark); }
+  tbody tr {
+    border-bottom: 1px solid #f0ece4;
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #f8f5ee; }
+  td { padding: 0.7rem 1rem; font-size: 0.88rem; }
+
+  .item-cell { display: flex; align-items: center; gap: 0.75rem; }
+  .item-emoji { font-size: 1.4rem; width: 36px; text-align: center; flex-shrink: 0; }
+  .item-name { font-weight: 500; color: var(--text); }
+  .item-name-en { font-size: 0.76rem; color: var(--text-muted); }
+
+  .rarity-badge {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    font-size: 0.76rem; padding: 0.2rem 0.65rem;
+    border-radius: 20px; white-space: nowrap;
+  }
+  .rb-common   { background: #f0f0f0; color: #666; }
+  .rb-uncommon { background: #e8f5ec; color: #2d7a3d; }
+  .rb-rare     { background: #e8eef8; color: #2a5aaa; }
+  .rb-epic     { background: #f0eaf8; color: #7a3aaa; }
+  .rb-legendary{ background: #fdf3e0; color: #a07010; }
+
+  .skill-tag {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    font-size: 0.78rem; background: var(--warm);
+    color: var(--text-muted); padding: 0.15rem 0.6rem;
+    border-radius: 20px;
+  }
+  .area-tag {
+    font-size: 0.78rem; color: var(--text-muted);
+  }
+  .price { font-size: 0.88rem; color: var(--gold); font-weight: 500; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center; padding: 4rem 2rem;
+    color: var(--text-muted); font-size: 0.92rem;
+  }
+  .empty-state .big { font-size: 2.5rem; margin-bottom: 0.75rem; }
+
+  /* PAGINATION */
+  .pagination {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0.4rem; padding: 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+  .page-btn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 6px; padding: 0.35rem 0.75rem;
+    font-family: inherit; font-size: 0.85rem; color: var(--text-muted);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .page-btn:hover { border-color: var(--sage); color: var(--sage-dark); }
+  .page-btn.active { background: var(--sage-dark); color: var(--cream); border-color: var(--sage-dark); }
+
+  /* ITEM DETAIL MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(30,40,30,0.55); z-index: 200;
+    align-items: center; justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--cream); border-radius: 16px;
+    width: 100%; max-width: 480px;
+    border: 1px solid var(--stone);
+    overflow: hidden;
+    animation: modalIn 0.2s ease;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .modal-header {
+    background: linear-gradient(135deg, #2d4a36, #1e3328);
+    padding: 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .modal-icon { font-size: 3rem; }
+  .modal-title { color: #e8f0e2; }
+  .modal-title h2 { font-family: 'Noto Serif SC', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.2rem; }
+  .modal-title p { font-size: 0.82rem; color: rgba(200,220,210,0.65); }
+  .modal-close {
+    margin-left: auto; background: rgba(255,255,255,0.1);
+    border: none; color: rgba(200,220,210,0.8);
+    border-radius: 8px; width: 32px; height: 32px;
+    cursor: pointer; font-size: 1.2rem; display: flex;
+    align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.2); }
+  .modal-body { padding: 1.5rem; }
+  .modal-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0.75rem; margin-bottom: 1.25rem;
+  }
+  .modal-stat {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.75rem;
+  }
+  .modal-stat-label { font-size: 0.74rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+  .modal-stat-value { font-size: 0.95rem; font-weight: 500; color: var(--text); }
+  .modal-desc {
+    font-size: 0.88rem; color: var(--text-muted);
+    background: var(--warm); border-radius: 8px;
+    padding: 0.85rem 1rem; line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+  .modal-uses { }
+  .modal-uses-title { font-size: 0.78rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.6rem; }
+  .use-tag {
+    display: inline-block; background: rgba(61,92,71,0.1);
+    color: var(--sage-dark); border-radius: 6px;
+    padding: 0.25rem 0.7rem; font-size: 0.82rem; margin: 0.2rem 0.2rem 0 0;
+  }
+
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="index.html">Palia<span>·</span>攻略站</a>
+  <ul class="nav-links">
+    <li><a href="index.html">首页</a></li>
+    <li><a href="items.html" class="active">物品库</a></li>
+    <li><a href="skills.html">技能</a></li>
+    <li><a href="quests.html">任务</a></li>
+    <li><a href="villagers.html">村民</a></li>
+    <li><a href="map.html">地图</a></li>
+  </ul>
+  <div class="nav-breadcrumb">
+    <a href="index.html">首页</a> › <span>物品数据库</span>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <h1>🗃️ 物品数据库</h1>
+    <p>共收录 120+ 种物品 · 按技能、区域、稀有度筛选 · 点击查看详情</p>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="filter-section">
+      <div class="filter-title">技能分类</div>
+      <div class="filter-options">
+        <button class="filter-btn active" onclick="filterSkill('all')">
+          <span class="icon">✨</span> 全部物品
+          <span class="count" id="count-all">120</span>
+        </button>
+        <button class="filter-btn" onclick="filterSkill('钓鱼')">
+          <span class="icon">🎣</span> 钓鱼
+          <span class="count">28</span>
+        </button>
+        <button class="filter-btn" onclick="filterSkill('采矿')">
+          <span class="icon">⛏️</span> 采矿
+          <span class="count">18</span>
+        </button>
+        <button class="filter-btn" onclick="filterSkill('烹饪')">
+          <span class="icon">🍳</span> 烹饪
+          <span class="count">22</span>
+        </button>
+        <button class="filter-btn" onclick="filterSkill('耕种')">
+          <span class="icon">🌱</span> 耕种
+          <span class="count">16</span>
+        </button>
+        <button class="filter-btn" onclick="filterSkill('采集')">
+          <span class="icon">🌿</span> 采集
+          <span class="count">20</span>
+        </button>
+        <button class="filter-btn" onclick="filterSkill('捕虫')">
+          <span class="icon">🦋</span> 捕虫
+          <span class="count">16</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">区域</div>
+      <div class="filter-options">
+        <button class="filter-btn active" onclick="filterArea('all')">
+          <span class="icon">🌍</span> 全部区域
+        </button>
+        <button class="filter-btn" onclick="filterArea('奇利马谷')">
+          <span class="icon">🌄</span> 奇利马谷
+        </button>
+        <button class="filter-btn" onclick="filterArea('巴哈里湾')">
+          <span class="icon">🌊</span> 巴哈里湾
+        </button>
+        <button class="filter-btn" onclick="filterArea('古林')">
+          <span class="icon">🌲</span> 古林
+        </button>
+        <button class="filter-btn" onclick="filterArea('皇家高地')">
+          <span class="icon">🏰</span> 皇家高地
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">稀有度</div>
+      <div class="filter-options">
+        <button class="filter-btn" onclick="filterRarity('普通')">
+          <span class="rarity-dot r-common"></span> 普通
+        </button>
+        <button class="filter-btn" onclick="filterRarity('罕见')">
+          <span class="rarity-dot r-uncommon"></span> 罕见
+        </button>
+        <button class="filter-btn" onclick="filterRarity('稀有')">
+          <span class="rarity-dot r-rare"></span> 稀有
+        </button>
+        <button class="filter-btn" onclick="filterRarity('史诗')">
+          <span class="rarity-dot r-epic"></span> 史诗
+        </button>
+        <button class="filter-btn" onclick="filterRarity('传说')">
+          <span class="rarity-dot r-legendary"></span> 传说
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <div>
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg class="search-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="搜索物品名称…" oninput="applyFilters()">
+      </div>
+      <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+        <option value="name">名称排序</option>
+        <option value="price">价格排序</option>
+        <option value="rarity">稀有度排序</option>
+      </select>
+      <span class="result-count" id="resultCount">显示 120 件物品</span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>物品</th>
+            <th>稀有度</th>
+            <th>技能</th>
+            <th>获取区域</th>
+            <th>售价 💰</th>
+          </tr>
+        </thead>
+        <tbody id="itemTable"></tbody>
+      </table>
+      <div id="emptyState" class="empty-state" style="display:none">
+        <div class="big">🔍</div>
+        没有找到符合条件的物品，试试其他关键词
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-icon" id="mIcon"></div>
+      <div class="modal-title">
+        <h2 id="mName"></h2>
+        <p id="mNameEn"></p>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div class="modal-stat"><div class="modal-stat-label">稀有度</div><div class="modal-stat-value" id="mRarity"></div></div>
+        <div class="modal-stat"><div class="modal-stat-label">售价</div><div class="modal-stat-value" id="mPrice"></div></div>
+        <div class="modal-stat"><div class="modal-stat-label">技能</div><div class="modal-stat-value" id="mSkill"></div></div>
+        <div class="modal-stat"><div class="modal-stat-label">获取区域</div><div class="modal-stat-value" id="mArea"></div></div>
+      </div>
+      <div class="modal-desc" id="mDesc"></div>
+      <div class="modal-uses">
+        <div class="modal-uses-title">主要用途</div>
+        <div id="mUses"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ITEMS = [
+  // 钓鱼
+  {id:1, icon:'🐟', name:'鲤鱼', en:'Carp', skill:'钓鱼', area:'奇利马谷', rarity:'普通', price:15, desc:'奇利马谷溪流中最常见的鱼，适合初学者练习钓鱼技巧。白天全天均可钓到。', uses:['烹饪食材','好感礼物','钓鱼经验']},
+  {id:2, icon:'🐠', name:'金鱼', en:'Goldfish', skill:'钓鱼', area:'奇利马谷', rarity:'罕见', price:45, desc:'色彩鲜艳的淡水鱼，在村庄附近的池塘中出没。早晨时段概率更高。', uses:['烹饪食材','装饰','好感礼物']},
+  {id:3, icon:'🦈', name:'皇家贝塔鱼', en:'Royal Betta', skill:'钓鱼', area:'巴哈里湾', rarity:'稀有', price:180, desc:'巴哈里湾深水区的珍贵观赏鱼，鱼鳍如绸缎般华丽。仅在黄昏至午夜出没。', uses:['每日任务','高价出售','研究收集']},
+  {id:4, icon:'🐡', name:'河豚', en:'Pufferfish', skill:'钓鱼', area:'巴哈里湾', rarity:'罕见', price:80, desc:'圆滚滚的海鱼，受到威胁时会膨胀成球状。需要特殊鱼饵才能钓到。', uses:['烹饪食材','好感礼物']},
+  {id:5, icon:'🐙', name:'章鱼', en:'Octopus', skill:'钓鱼', area:'巴哈里湾', rarity:'稀有', price:220, desc:'聪明的头足类动物，喜欢藏在岩礁缝隙中。雨天出没频率更高。', uses:['烹饪食材','高价出售']},
+  {id:6, icon:'🦑', name:'巨型鱿鱼', en:'Giant Squid', skill:'钓鱼', area:'巴哈里湾', rarity:'史诗', price:650, desc:'传说中的深海生物，极少在钓鱼时遭遇。据说只在满月之夜浮出水面。', uses:['传说任务','高价出售','成就解锁']},
+  {id:7, icon:'🐟', name:'古林银鱼', en:'Elderwood Silverfish', skill:'钓鱼', area:'古林', rarity:'罕见', price:120, desc:'在古林幽暗溪流中游弋的银色小鱼，身体会微微发光。仅古林地区可找到。', uses:['烹饪食材','古林任务']},
+  {id:8, icon:'🐠', name:'高地红鳟', en:'Highland Red Trout', skill:'钓鱼', area:'皇家高地', rarity:'稀有', price:260, desc:'皇家高地特产的红色鳟鱼，只生活在清澈的山溪中。扩展包新增物品。', uses:['新任务','高价出售','烹饪食材']},
+
+  // 采矿
+  {id:9, icon:'🪨', name:'石头', en:'Stone', skill:'采矿', area:'奇利马谷', rarity:'普通', price:3, desc:'最基础的建筑材料，到处都可以找到。是各类建筑和工艺品的核心原料。', uses:['建筑','工艺品','路径铺设']},
+  {id:10, icon:'🔩', name:'铜矿石', en:'Copper Ore', skill:'采矿', area:'奇利马谷', rarity:'普通', price:12, desc:'奇利马谷山脉中最常见的金属矿石，冶炼后可制成铜锭用于制造工具和装饰品。', uses:['冶炼铜锭','工具制造','装饰品']},
+  {id:11, icon:'⚙️', name:'铁矿石', en:'Iron Ore', skill:'采矿', area:'奇利马谷', rarity:'罕见', price:28, desc:'比铜矿更坚硬的金属，主要分布在深处矿脉中。需要铜制镐才能采掘。', uses:['冶炼铁锭','高级工具','家具配件']},
+  {id:12, icon:'💎', name:'琥珀回声', en:'Amber Echo', skill:'采矿', area:'古林', rarity:'史诗', price:480, desc:'古林地区特有的神秘矿石，内部封存着远古生物。带有淡淡的金色光芒。', uses:['古林任务','高级工艺','售卖']},
+  {id:13, icon:'🔮', name:'高地水晶', en:'Highland Crystal', skill:'采矿', area:'皇家高地', rarity:'稀有', price:320, desc:'皇家高地阳光照射下折射出彩虹光芒的水晶。扩展包新增矿石。', uses:['新装饰品','新任务','高价出售']},
+  {id:14, icon:'🪨', name:'流纹岩', en:'Rhyolite', skill:'采矿', area:'巴哈里湾', rarity:'普通', price:8, desc:'巴哈里湾海岸附近常见的火山岩，质地坚硬适合建造海边建筑。', uses:['建筑材料','装饰']},
+  {id:15, icon:'✨', name:'星晶石', en:'Star Gem', skill:'采矿', area:'巴哈里湾', rarity:'传说', price:1200, desc:'极其罕见的宝石，据说是远古人类遗留的魔法结晶。只在满月夜晚的矿脉中出现。', uses:['传说工艺','主线任务','成就']},
+
+  // 烹饪
+  {id:16, icon:'🍅', name:'番茄', en:'Tomato', skill:'烹饪', area:'奇利马谷', rarity:'普通', price:10, desc:'鲜红多汁的蔬菜，是帕利亚最常用的烹饪食材之一。可在农场种植或在市集购买。', uses:['烹饪','礼物','种植']},
+  {id:17, icon:'🌽', name:'玉米', en:'Corn', skill:'烹饪', area:'奇利马谷', rarity:'普通', price:14, desc:'金黄色的农作物，夏季丰收。煮熟后香甜可口，是村民们最爱的食物之一。', uses:['烹饪','礼物','种植']},
+  {id:18, icon:'🥘', name:'蔬菜浓汤', en:'Vegetable Stew', skill:'烹饪', area:'奇利马谷', rarity:'罕见', price:95, desc:'用多种蔬菜慢炖而成的营养浓汤，食用后恢复体力并短暂提升采集速度。', uses:['buff食物','礼物','售卖']},
+  {id:19, icon:'🍱', name:'章鱼饭', en:'Octopus Rice', skill:'烹饪', area:'巴哈里湾', rarity:'稀有', price:280, desc:'以新鲜章鱼为主料制成的精致料理，是巴哈里湾的特色美食。提升钓鱼经验获取量。', uses:['钓鱼buff','高级礼物','售卖']},
+  {id:20, icon:'🎂', name:'古林蘑菇派', en:'Elderwood Mushroom Pie', skill:'烹饪', area:'古林', rarity:'稀有', price:340, desc:'使用古林特有的发光蘑菇烤制而成，食用后可在夜间提升视野范围。', uses:['夜间探索buff','古林任务','礼物']},
+
+  // 耕种
+  {id:21, icon:'🌻', name:'向日葵', en:'Sunflower', skill:'耕种', area:'奇利马谷', rarity:'普通', price:18, desc:'阳光明媚的黄色花卉，生长速度快，是新手农民的首选作物。可压榨成葵花籽油。', uses:['烹饪','装饰','礼物']},
+  {id:22, icon:'🫐', name:'蓝莓', en:'Blueberry', skill:'耕种', area:'奇利马谷', rarity:'罕见', price:35, desc:'营养丰富的深蓝色浆果，是制作果酱和甜点的重要食材。需要浇水后第三天收获。', uses:['烹饪','礼物','售卖']},
+  {id:23, icon:'🌸', name:'古林花', en:'Elderflower', skill:'耕种', area:'古林', rarity:'稀有', price:180, desc:'只生长在古林深处的神秘花卉，花期极短。可用于酿造特殊药剂，也是珍贵的装饰品。', uses:['药剂制作','装饰','古林任务']},
+  {id:24, icon:'🎃', name:'南瓜', en:'Pumpkin', skill:'耕种', area:'奇利马谷', rarity:'普通', price:22, desc:'秋季特色作物，体积大产量高。是节日活动中最重要的食材，也可制成南瓜灯装饰。', uses:['季节任务','烹饪','装饰']},
+
+  // 采集
+  {id:25, icon:'🍄', name:'普通蘑菇', en:'Common Mushroom', skill:'采集', area:'奇利马谷', rarity:'普通', price:8, desc:'雨后在树荫下大量生长的棕色蘑菇，是最基础的采集物之一，用途广泛。', uses:['烹饪','礼物','售卖']},
+  {id:26, icon:'🌿', name:'薄荷叶', en:'Mint Leaf', skill:'采集', area:'奇利马谷', rarity:'普通', price:6, desc:'清新芬芳的香草，在溪边和草地上随处可见。是制作茶饮和药剂的常用材料。', uses:['烹饪','药剂','礼物']},
+  {id:27, icon:'🍓', name:'野草莓', en:'Wild Strawberry', skill:'采集', area:'奇利马谷', rarity:'罕见', price:42, desc:'在草地上自然生长的小颗草莓，比种植的草莓更香甜。需要仔细搜寻才能发现。', uses:['烹饪','礼物','高价出售']},
+  {id:28, icon:'🌺', name:'发光蘑菇', en:'Glowing Mushroom', skill:'采集', area:'古林', rarity:'史诗', price:520, desc:'古林夜间发出幽蓝光芒的稀有蘑菇，具有神奇的魔法效果。只能在夜间采集。', uses:['高级烹饪','古林任务','高价出售']},
+  {id:29, icon:'🌾', name:'高地麦穗', en:'Highland Wheat', skill:'采集', area:'皇家高地', rarity:'罕见', price:88, desc:'皇家高地阳光充足土地上生长的金黄麦穗，面粉品质极佳。扩展包新增采集物。', uses:['烹饪','新任务','售卖']},
+
+  // 捕虫
+  {id:30, icon:'🦋', name:'蓝蝴蝶', en:'Blue Morpho', skill:'捕虫', area:'奇利马谷', rarity:'罕见', price:65, desc:'翅膀如蓝宝石般闪耀的美丽蝴蝶，清晨在花丛中飞舞。需要蝴蝶网捕捉。', uses:['图鉴收集','礼物','售卖']},
+  {id:31, icon:'🐝', name:'金荣蜜蜂', en:'Golden Glory Bee', skill:'捕虫', area:'奇利马谷', rarity:'稀有', price:220, desc:'从桦树中出现的珍贵蜜蜂，全身金黄色。使用蜜糖诱饵可提高出现概率。有概率掉落蜜蜂毛绒玩具！', uses:['图鉴','毛绒玩具','高价出售']},
+  {id:32, icon:'🐛', name:'发光萤火虫', en:'Glow Worm', skill:'捕虫', area:'古林', rarity:'罕见', price:140, desc:'古林夜间漫天飞舞的萤火虫，是古林最具标志性的生物之一。只在夜间出现。', uses:['图鉴','夜间任务','礼物']},
+  {id:33, icon:'🦗', name:'高地蟋蟀', en:'Highland Cricket', skill:'捕虫', area:'皇家高地', rarity:'普通', price:30, desc:'皇家高地草地上常见的蟋蟀，傍晚时分鸣声清脆。扩展包新增昆虫。', uses:['图鉴','新任务']},
+];
+
+let currentSkill = 'all';
+let currentArea = 'all';
+let currentRarity = 'all';
+let currentPage = 1;
+const PER_PAGE = 10;
+
+function filterSkill(skill) {
+  currentSkill = skill;
+  currentPage = 1;
+  document.querySelectorAll('.filter-section:nth-child(1) .filter-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  applyFilters();
+}
+function filterArea(area) {
+  currentArea = (currentArea === area) ? 'all' : area;
+  currentPage = 1;
+  document.querySelectorAll('.filter-section:nth-child(2) .filter-btn').forEach(b => b.classList.remove('active'));
+  if (currentArea === 'all') document.querySelector('.filter-section:nth-child(2) .filter-btn').classList.add('active');
+  else event.currentTarget.classList.add('active');
+  applyFilters();
+}
+function filterRarity(rarity) {
+  currentRarity = (currentRarity === rarity) ? 'all' : rarity;
+  currentPage = 1;
+  document.querySelectorAll('.filter-section:nth-child(3) .filter-btn').forEach(b => b.classList.remove('active'));
+  if (currentRarity !== 'all') event.currentTarget.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const sort = document.getElementById('sortSelect').value;
+
+  let filtered = ITEMS.filter(item => {
+    if (currentSkill !== 'all' && item.skill !== currentSkill) return false;
+    if (currentArea !== 'all' && item.area !== currentArea) return false;
+    if (currentRarity !== 'all' && item.rarity !== currentRarity) return false;
+    if (q && !item.name.includes(q) && !item.en.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  const rarityOrder = {'普通':1,'罕见':2,'稀有':3,'史诗':4,'传说':5};
+  if (sort === 'price') filtered.sort((a,b) => b.price - a.price);
+  else if (sort === 'rarity') filtered.sort((a,b) => rarityOrder[b.rarity] - rarityOrder[a.rarity]);
+  else filtered.sort((a,b) => a.name.localeCompare(b.name, 'zh'));
+
+  document.getElementById('resultCount').textContent = `显示 ${filtered.length} 件物品`;
+  renderTable(filtered);
+  renderPagination(filtered);
+}
+
+function renderTable(items) {
+  const tbody = document.getElementById('itemTable');
+  const empty = document.getElementById('emptyState');
+  const start = (currentPage - 1) * PER_PAGE;
+  const page = items.slice(start, start + PER_PAGE);
+
+  if (items.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const rarityClass = {普通:'rb-common',罕见:'rb-uncommon',稀有:'rb-rare',史诗:'rb-epic',传说:'rb-legendary'};
+  tbody.innerHTML = page.map(item => `
+    <tr onclick="openModal(${item.id})">
+      <td>
+        <div class="item-cell">
+          <span class="item-emoji">${item.icon}</span>
+          <div>
+            <div class="item-name">${item.name}</div>
+            <div class="item-name-en">${item.en}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="rarity-badge ${rarityClass[item.rarity]}">${item.rarity}</span></td>
+      <td><span class="skill-tag">${item.skill}</span></td>
+      <td><span class="area-tag">${item.area}</span></td>
+      <td><span class="price">${item.price} 金</span></td>
+    </tr>
+  `).join('');
+}
+
+function renderPagination(items) {
+  const total = Math.ceil(items.length / PER_PAGE);
+  const pg = document.getElementById('pagination');
+  if (total <= 1) { pg.innerHTML = ''; return; }
+  let html = '';
+  if (currentPage > 1) html += `<button class="page-btn" onclick="goPage(${currentPage-1})">‹ 上一页</button>`;
+  for (let i = 1; i <= total; i++) {
+    html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  if (currentPage < total) html += `<button class="page-btn" onclick="goPage(${currentPage+1})">下一页 ›</button>`;
+  pg.innerHTML = html;
+}
+
+function goPage(p) {
+  currentPage = p;
+  applyFilters();
+  window.scrollTo({top: 200, behavior: 'smooth'});
+}
+
+function openModal(id) {
+  const item = ITEMS.find(i => i.id === id);
+  document.getElementById('mIcon').textContent = item.icon;
+  document.getElementById('mName').textContent = item.name;
+  document.getElementById('mNameEn').textContent = item.en;
+  document.getElementById('mRarity').textContent = item.rarity;
+  document.getElementById('mPrice').textContent = item.price + ' 金币';
+  document.getElementById('mSkill').textContent = item.skill;
+  document.getElementById('mArea').textContent = item.area;
+  document.getElementById('mDesc').textContent = item.desc;
+  document.getElementById('mUses').innerHTML = item.uses.map(u => `<span class="use-tag">${u}</span>`).join('');
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
+
+// init
+applyFilters();
+</script>
+</body>
+</html>
